@@ -1,0 +1,26 @@
+---
+- name: Create /etc/docker directory
+  file:
+    path: /etc/docker
+    state: directory
+    mode: '0755'
+
+- name: Configure Docker daemon for Nexus registry
+  template:
+    src: daemon.json.j2
+    dest: /etc/docker/daemon.json
+    owner: root
+    group: root
+    mode: '0644'
+    validate: 'python3 -m json.tool %s'
+    backup: yes
+  notify: restart docker
+  ignore_errors: "{{ansible_check_mode}}"
+  check_mode: no
+
+- name: Ensure Docker service is running
+  service:
+    name: docker
+    state: started
+    enabled: yes
+  ignore_errors: "{{ ansible_check_mode }}"

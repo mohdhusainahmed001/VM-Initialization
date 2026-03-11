@@ -1,0 +1,32 @@
+- name: create odp user
+  user:
+    name: onexodp
+    groups: sudo
+    append: true
+    createhome: yes
+    password: "{{odp_user_password}}"
+    state: present
+    shell: /bin/bash
+    update_password: on_create
+  become: yes
+
+- name: Set up authorized_keys for onexodp
+  ansible.posix.authorized_key:
+    user: onexodp
+    state: present
+    key: "{{ lookup('file', 'onexodp_authorized_key.pub') }}"
+  become: yes
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- name: Allow the new user/group to have passwordless sudo
+  ansible.builtin.copy:
+    content: "onexodp ALL=(ALL) NOPASSWD:ALL"
+    dest: "/etc/sudoers.d/90-onexodp-nopasswd"
+    mode: '0440' 
+    validate: '/usr/sbin/visudo -cf %s' 
+  register: sudoers_status
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- name: enable linger for odp user
+  ansible.builtin.command: "loginctl enable-linger onexodp"
+  become: yes

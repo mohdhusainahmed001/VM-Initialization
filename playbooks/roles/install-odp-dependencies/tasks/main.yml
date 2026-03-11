@@ -1,0 +1,15 @@
+- name: install odp dependencies
+  apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  loop:
+    - kcat
+    - build-essential
+    - libpcre3
+    - libpcre3-dev
+    - zlib1g
+    - zlib1g-dev
+    - libssl-dev
+    - netcat-openbsd
+  become: yes

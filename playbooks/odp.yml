@@ -1,0 +1,22 @@
+---
+- name: Bootstrap ODP User
+  hosts: odp
+  become: yes
+  remote_user: onexadmin  
+  
+  roles:
+    - create-odp-user
+
+- name: Setup ODP Components
+  hosts: odp
+  become: yes
+  remote_user: onexodp
+  
+  roles:
+    - disable-unattended-upgrades
+    - create-odp-dirs
+    - install-odp-dependencies
+    - disable-swap
+    - set-timezone
+    - install-java
+    - install-python

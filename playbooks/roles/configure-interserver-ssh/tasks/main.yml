@@ -1,0 +1,25 @@
+---
+- name: configure ssh from backend to api
+  hosts: odp
+  become: yes
+
+  tasks:
+    - name: Create .ssh directory for odp user
+      file:
+        path: "/home/onexodp/.ssh"
+        state: directory
+        owner: onexodp
+        group: onexodp
+        mode: '0700'
+    - name: Create authorized_keys file for odp user
+      file:
+      path: "/home/onexodp/.ssh/authorized_keys"
+      state: touch
+      owner: onexodp
+      group: onexodp
+      mode: '0600'
+    - name: Add public key to authorized_keys
+      lineinfile:
+        path: "/home/onexodp/.ssh/authorized_keys"
+        line: "{{ lookup('env', 'ODP_SSH_PUBLIC_KEY') }}"
+        create: yes

@@ -1,0 +1,37 @@
+---
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: yes
+    cache_valid_time: 3600
+  become: yes
+
+- name: Install OpenJDK 17
+  ansible.builtin.apt:
+    name: openjdk-17-jdk
+    state: present
+  become: yes
+  # Matches the groups defined in your inventory
+  when: "'odp-api-java17' in group_names or 'odp-lakehouse' in group_names"
+
+- name: Install OpenJDK 21
+  ansible.builtin.apt:
+    name: openjdk-21-jdk
+    state: present
+  become: yes
+  # Matches the groups defined in your inventory
+  when: "'odp-api-java21' in group_names"
+
+- name: Configure system-wide JAVA_HOME
+  ansible.builtin.copy:
+    dest: /etc/profile.d/java_home.sh
+    content: |
+      export JAVA_HOME=/usr/lib/jvm/java-{{ '21' if 'odp-api-java21' in group_names else '17' }}-openjdk-amd64
+      export PATH=$JAVA_HOME/bin:$PATH
+    mode: '0644'
+  become: yes
+
+- name: Verify Java installation
+  ansible.builtin.command: java -version
+  register: java_version
+  changed_when: false
+  when: not ansible_check_mode

@@ -1,0 +1,17 @@
+- name: Create ODP directories
+  file:
+    path: "/data/ODP/tools/{{ item.name }}"
+    state: directory
+    owner: onexodp
+    group: onexodp
+    mode: '0755'
+  become: yes
+  loop:
+    - { name: 'kafka-storage', groups: ['odp-backend-jobs'] }
+    - { name: 'zookeeper-storage', groups: ['odp-backend-jobs'] }
+    - { name: 'doris-fe-storage', groups: ['odp-doris-fe'] }
+    - { name: 'doris-be-storage', groups: ['odp-doris-be'] }
+    - { name: 'grafana-storage', groups: ['odp-api-java17'] }
+    - { name: 'lakehouse', groups: ['odp-lakehouse'] }
+    - { name: 'backend_services', groups: ['odp-api-java17', 'odp-api-java21'] }
+  when: item.groups | intersect(group_names) | length > 0

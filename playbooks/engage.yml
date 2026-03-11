@@ -1,0 +1,11 @@
+- name: Setup engage servers
+  hosts: engage
+  become: yes
+
+  roles:
+    - system-tuning
+    - node-exporter
+    - nginx
+    - disable-unattended-upgrades
+    - node.js
+    - pm2

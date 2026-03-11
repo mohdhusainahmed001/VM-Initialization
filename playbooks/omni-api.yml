@@ -1,0 +1,19 @@
+- name: Setup Omni API Cluster
+  hosts: omni-api
+  become: yes
+  
+  pre_tasks:
+    - name: Gather facts from Leader
+      setup:
+      delegate_to: "{{ groups['omni_managers'][0] }}"
+      delegate_facts: True
+      when: groups['omni_managers'][0] not in ansible_play_hosts
+
+  roles:
+    - docker
+    - nexus-mirror
+    - system-tuning
+    - node-exporter
+    - disable-unattended-upgrades
+    - docker-swarm
+    - nginx

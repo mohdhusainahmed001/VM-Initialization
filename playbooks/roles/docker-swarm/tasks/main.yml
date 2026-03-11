@@ -1,0 +1,86 @@
+---
+- name: Check Swarm Status
+  community.docker.docker_swarm_info:
+  register: swarm_info
+  ignore_errors: true
+
+- name: Create data directory for omni
+  file:
+    path: /data/dnd-rocksdb
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0755'
+
+- name: Create data directory for omni
+  file:
+    path: /tmp/bqueue
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0755'
+
+# --- PHASE 1: THE PRIMARY LEADER ---
+- name: Init Swarm on Primary Leader
+  community.docker.docker_swarm:
+    state: present
+    advertise_addr: "{{ ansible_default_ipv4.address }}"
+  when: 
+    - inventory_hostname == groups['omni_managers'][0]
+    - (swarm_info.swarm_facts | default({})).LocalNodeState | default('inactive') != 'active'
+    - not ansible_check_mode
+
+- name: Create Overlay Network (Primary Leader Only)
+  community.docker.docker_network:
+    name: omni-net
+    driver: overlay
+    attachable: yes
+  when: 
+    - inventory_hostname == groups['omni_managers'][0]
+    - not ansible_check_mode
+
+- name: Retrieve Join Tokens
+  community.docker.docker_swarm_info:
+  register: swarm_facts
+  when: 
+    - inventory_hostname == groups['omni_managers'][0]
+    - (not ansible_check_mode) or (swarm_info.docker_swarm_active | default(false))
+
+# --- PHASE 2: SHARE FACTS ---
+- name: Set Token Facts
+  set_fact:
+    manager_join_token: "{{ swarm_facts.swarm_facts.JoinTokens.Manager }}"
+    worker_join_token: "{{ swarm_facts.swarm_facts.JoinTokens.Worker }}"
+    leader_ip: "{{ ansible_default_ipv4.address }}"
+  when: 
+    - inventory_hostname == groups['omni_managers'][0]
+    - swarm_facts.swarm_facts is defined
+    - not ansible_check_mode
+  delegate_to: "{{ groups['omni_managers'][0] }}"
+  delegate_facts: true
+
+# --- PHASE 3: SECONDARY MANAGERS ---
+- name: Join Swarm as Manager
+  community.docker.docker_swarm:
+    state: join
+    join_token: "{{ hostvars[groups['omni_managers'][0]]['manager_join_token'] }}"
+    remote_addrs: [ "{{ hostvars[groups['omni_managers'][0]]['leader_ip'] }}:2377" ]
+    advertise_addr: "{{ ansible_default_ipv4.address }}"
+  when: 
+    - inventory_hostname in groups['omni_managers']
+    - inventory_hostname != groups['omni_managers'][0]
+    - (swarm_info.swarm_facts | default({})).LocalNodeState | default('inactive') != 'active'
+    - not ansible_check_mode
+
+# --- PHASE 4: WORKERS ---
+- name: Join Swarm as Worker
+  community.docker.docker_swarm:
+    state: join
+    join_token: "{{ hostvars[groups['omni_managers'][0]]['worker_join_token'] }}"
+    remote_addrs: [ "{{ hostvars[groups['omni_managers'][0]]['leader_ip'] }}:2377" ]
+    advertise_addr: "{{ ansible_default_ipv4.address }}"
+  when: 
+    - inventory_hostname in groups['omni_workers']
+    # FIX: Safe check
+    - (swarm_info.swarm_facts | default({})).LocalNodeState | default('inactive') != 'active'
+    - not ansible_check_mode

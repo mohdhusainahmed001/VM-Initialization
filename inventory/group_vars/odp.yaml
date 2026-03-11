@@ -1,0 +1,2 @@
+---
+odp_user_password: "{{ vault_odp_user_password }}"

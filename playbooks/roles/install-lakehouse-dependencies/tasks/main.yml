@@ -1,0 +1,7 @@
+- name: install lakehouse dependencies
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - 
+  become: yes

@@ -1,0 +1,13 @@
+
+---
+# Nexus registry URLs (customize these)
+nexus_registries:
+  - "http://10.51.3.153:8081/repository/onex-docker/"
+
+# Docker logging configuration
+docker_log_driver: "json-file"
+docker_log_max_size: "10m"
+docker_log_max_file: "3"
+
+# Optional: storage driver
+# docker_storage_driver: "overlay2"

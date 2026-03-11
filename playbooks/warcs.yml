@@ -1,0 +1,12 @@
+---
+- name:
+  hosts: warcs
+  become: yes
+
+  roles:
+    - docker
+    - nexus-mirror
+    - system-tuning
+    - node-exporter
+    - nginx
+    - disable-unattended-upgrades

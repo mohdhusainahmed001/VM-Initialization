@@ -1,0 +1,94 @@
+- name: turn off swap
+  command: swapoff -a
+  become: yes
+  check_mode: no
+  ignore_errors: yes        
+
+- name: Disable SWAP permanently by commenting out fstab
+  become: true
+  ansible.builtin.replace:
+    path: /etc/fstab
+    regexp: '^([^#].*?\sswap\s+sw\s+.*)$'
+    replace: '# \1'
+  check_mode: no
+
+- name: create new swap file of 64gb
+  command: fallocate -l 64G /swapfile
+  become: yes
+  args:
+    creates: /swapfile
+  check_mode: no
+
+- name: set permissions for swap file
+  file:
+    path: /swapfile
+    mode: '0600'
+    owner: root
+    group: root
+    state: file
+  become: yes
+  check_mode: no
+
+- name: setup swap area
+  command: mkswap /swapfile
+  become: yes
+  check_mode: no
+
+- name: enable swap file
+  command: swapon /swapfile
+  become: yes
+  check_mode: no
+  ignore_errors: yes        # may fail if already enabled
+
+- name: add swap file to fstab
+  lineinfile:
+    path: /etc/fstab
+    line: '/swapfile none swap sw 0 0'
+    create: yes
+    state: present
+  become: yes
+  check_mode: no
+
+- name: verify swap is enabled
+  command: swapon --show
+  become: yes
+  check_mode: no
+  changed_when: false
+
+- name: set hard ulimit for open files
+  lineinfile:
+    path: /etc/security/limits.conf
+    line: '* hard nofile 1048576'
+    state: present
+  become: yes
+
+- name: set soft ulimit for open files
+  lineinfile:
+    path: /etc/security/limits.conf
+    line: '* soft nofile 1048576'
+    state: present
+  become: yes
+
+- name: set tcp params
+  blockinfile:
+    path: /etc/sysctl.conf
+    block: |
+      net.core.default_qdisc=fq
+      net.ipv4.tcp_congestion_control=bbr
+      net.ipv4.tcp_max_syn_backlog = 8192
+      net.core.wmem_max = 16777216
+      net.ipv4.tcp_window_scaling = 1
+      net.core.rmem_max = 16777216
+      net.ipv4.tcp_rmem = 4096 87380 16777216
+      net.ipv4.tcp_wmem = 4096 16384 16777216
+      net.core.somaxconn=65535
+      net.ipv4.ip_local_port_range=1024 65535
+      net.ipv4.tcp_tw_reuse=1
+      net.core.netdev_max_backlog=250000
+  become: yes
+
+- name: apply sysctl settings
+  command: sysctl -p
+  become: yes
+  check_mode: no
+  changed_when: false

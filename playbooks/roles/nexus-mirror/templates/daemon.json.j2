@@ -1,0 +1,9 @@
+{
+  "registry-mirrors": {{ nexus_registries | to_json }},
+  "log-driver": "{{ docker_log_driver | default('json-file') }}",
+  "log-opts": {
+    "max-size": "{{ docker_log_max_size | default('10m') }}",
+    "max-file": "{{ docker_log_max_file | default('3') }}"
+  }{% if docker_storage_driver is defined %},
+  "storage-driver": "{{ docker_storage_driver }}"{% endif %}
+}

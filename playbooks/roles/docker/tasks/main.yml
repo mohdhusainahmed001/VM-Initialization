@@ -1,0 +1,104 @@
+---
+- name: Install required packages
+  apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - pkg-config
+      - libfreetype-dev
+      - automake
+      - autoconf
+      - libncurses-dev
+      - build-essential
+      - libssl-dev
+      - g++
+      - libsnappy-dev
+      - apt-utils
+      - libexpat1-dev
+      - libpam0g-dev
+      - libtool
+      - git
+      - apt-transport-https
+      - ca-certificates
+      - software-properties-common
+      - libyaml-cpp-dev
+      - libre2-dev
+      - erlang
+      - net-tools
+      - gh
+      - python3-docker
+    state: present
+    update_cache: yes
+  check_mode: no
+- name: Create keyrings directory
+  file:
+    path: /usr/share/keyrings
+    state: directory
+    mode: '0755'
+  check_mode: no
+
+- name: Get Ubuntu codename
+  command: lsb_release -cs
+  register: ubuntu_codename
+  changed_when: false
+  check_mode: no          # <-- always run, even in dry-run
+
+- name: Add Docker's official GPG key
+  shell: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+  args:
+    creates: /usr/share/keyrings/docker-archive-keyring.gpg
+  check_mode: no          # <-- always run, even in dry-run
+
+- name: Remove conflicting Deb822 style docker sources
+  file:
+    path: /etc/apt/sources.list.d/docker.sources
+    state: absent
+  check_mode: no
+- name: Add Docker repository
+  copy:
+    dest: /etc/apt/sources.list.d/docker.list
+    content: |
+      deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu {{ ubuntu_codename.stdout }} stable
+    mode: '0644'
+    owner: root
+    group: root
+  check_mode: no
+
+- name: Update apt cache
+  apt:
+    update_cache: yes
+  check_mode: no
+
+- name: Install Docker packages
+  apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
+    state: present
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- name: Ensure Docker service is running and enabled
+  service:
+    name: docker
+    state: started
+    enabled: yes
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- name: Create docker group
+  group:
+    name: docker
+    state: present
+  ignore_errors: "{{ ansible_check_mode }}"
+
+
+- name: Add user to docker group
+  user:
+    name: "{{ ansible_user }}"
+    groups: docker
+    append: true
+    state: present
+  ignore_errors: "{{ ansible_check_mode }}"

@@ -1,0 +1,5 @@
+- name: Install pm2 globally
+  npm:
+    name: pm2
+    global: yes
+    state: present 

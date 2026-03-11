@@ -1,0 +1,11 @@
+- name: node-exporter
+  apt:
+    name: prometheus-node-exporter
+    state: present
+- name: Ensure node-exporter is enabled and running
+  service:
+    name: prometheus-node-exporter
+    state: started
+    enabled: yes 
+  ignore_errors: "{{ ansible_check_mode }}"
+

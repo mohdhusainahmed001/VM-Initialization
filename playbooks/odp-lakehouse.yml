@@ -1,0 +1,20 @@
+---
+- name: Bootstrap ODP User
+  hosts: odp-lakehouse
+  become: yes
+  remote_user: onexadmin  
+  
+#  roles:
+#    - create-odp-user
+
+- name: Setup ODP Components
+  hosts: odp-lakehouse
+  become: yes
+  remote_user: onexodp
+  
+  roles:
+    #- disable-unattended-upgrades
+    #- create-odp-dirs
+    #- install-lakehouse-dependencies
+    - set-timezone
+    #- install-java

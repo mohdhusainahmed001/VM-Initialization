@@ -1,0 +1,4 @@
+- name: set timezone to asia/kolkata
+  timezone:
+    name: Asia/Kolkata
+  become: yes

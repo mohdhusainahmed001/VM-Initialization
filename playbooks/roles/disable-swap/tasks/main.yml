@@ -1,0 +1,26 @@
+- name: turn off swap
+  command: swapoff -a
+  become: yes
+
+- name: Disable SWAP permanently by commenting out fstab
+  become: true
+  ansible.builtin.replace:
+    path: /etc/fstab
+    regexp: '^([^#].*?\sswap\s+sw\s+.*)$'
+    replace: '# \1'
+
+- name: set hard ulimit for open files
+  lineinfile:
+    path: /etc/security/limits.conf
+    line: '* hard nofile 200000'
+    create: no
+    state: present
+  become: yes
+
+- name: set soft ulimit for open files
+  lineinfile:
+    path: /etc/security/limits.conf
+    line: '* soft nofile 50000'
+    create: no
+    state: present
+  become: yes 

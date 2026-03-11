@@ -1,0 +1,4 @@
+---
+ansible_user: "onexadmin"
+ansible_become: true
+ansible_become_password: "{{ vault_ansible_become_password }}"

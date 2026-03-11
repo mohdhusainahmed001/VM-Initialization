@@ -1,0 +1,22 @@
+---
+- name: set timezone to asia/kolkata
+  timezone:
+    name: Asia/Kolkata
+
+- name: stop unattended-upgrades service
+  service:
+    name: unattended-upgrades
+    state: stopped
+    enabled: no
+
+- name: stop and disable apt-daily.timer
+  systemd:
+    name: apt-daily.timer
+    state: stopped
+    enabled: no
+
+- name: stop and disable apt-daily-upgrade.service
+  systemd:
+    name: apt-daily-upgrade.timer
+    state: stopped
+    enabled: no
