@@ -3,11 +3,10 @@
 [engage]
 
 [omni_managers]
-10.20.3.203
+10.52.6.60
 
 [omni_workers]
-10.20.3.206
-10.20.3.204
+10.52.6.61
 
 [omni-api:children]
 omni_managers
