@@ -13,8 +13,8 @@ pipeline {
         stage("Dry run ansible playbook") {
             steps {
                 ansiblePlaybook(
-                    playbook: "ansible/playbooks/${params.project}.yml",
-                    inventory: "ansible/inventory/hosts",
+                    playbook: "playbooks/${params.project}.yml",
+                    inventory: "inventory/hosts",
                     // Add this line
                     vaultCredentialsId: 'ansible-vault-pass',
                     extras: '--check'
@@ -37,8 +37,8 @@ pipeline {
         stage("Run ansible playbook") {
             steps {
                 ansiblePlaybook(
-                    playbook: "ansible/playbooks/${params.project}.yml",
-                    inventory: "ansible/inventory/hosts",
+                    playbook: "playbooks/${params.project}.yml",
+                    inventory: "inventory/hosts",
                     // Add this line here as well
                     vaultCredentialsId: 'ansible-vault-pass'
                 )
