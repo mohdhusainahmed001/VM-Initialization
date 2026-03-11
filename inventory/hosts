@@ -7,6 +7,7 @@
 
 [omni_workers]
 10.20.3.206
+10.20.3.204
 
 [omni-api:children]
 omni_managers
