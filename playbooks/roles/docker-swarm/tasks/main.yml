@@ -14,6 +14,13 @@
 
 - name: Create data directory for omni
   file:
+    path: /home/onexadmin/onexaura/volumes/logs/omni-api
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0755'
+- name: Create data directory for omni
+  file:
     path: /tmp/bqueue
     state: directory
     owner: "{{ ansible_user }}"

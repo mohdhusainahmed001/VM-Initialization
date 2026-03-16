@@ -5,7 +5,7 @@ pipeline {
 
     parameters {
         choice(name: 'project',
-            choices: ['engage', 'omni-api', 'warcs', 'odp'],
+            choices: ['engage', 'omni-api', 'warcs', 'odp', 'odp-lakehouse'],
             description: 'Select the environment to Initialize')
     }
 

@@ -15,3 +15,12 @@
     - { name: 'lakehouse', groups: ['odp-lakehouse'] }
     - { name: 'backend_services', groups: ['odp-api-java17', 'odp-api-java21'] }
   when: item.groups | intersect(group_names) | length > 0
+
+- name: Create systemd user directory for onexodp on all hosts
+  file:
+    path: "/home/onexodp/.config/systemd/user"
+    state: directory
+    owner: onexodp
+    group: onexodp
+    mode: '0755'
+  become: yes
