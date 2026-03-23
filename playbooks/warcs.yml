@@ -4,9 +4,9 @@
   become: yes
 
   roles:
-    - docker
-    - nexus-mirror
-    - system-tuning
+    #- docker
+    #- nexus-mirror
+   # - system-tuning
     - node-exporter
-    - nginx
-    - disable-unattended-upgrades
+    #- nginx
+    #- disable-unattended-upgrades

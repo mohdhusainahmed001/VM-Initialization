@@ -1,0 +1,10 @@
+---
+- name:
+  hosts: kubernetes
+  become: yes
+
+  roles:
+    - docker
+    - disable-swap
+    - nexus-mirror
+    - kubernetes

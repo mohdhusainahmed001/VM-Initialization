@@ -3,10 +3,10 @@
 [engage]
 
 [omni_managers]
-10.52.6.60
+
 
 [omni_workers]
-10.52.6.61
+
 
 [omni-api:children]
 omni_managers
@@ -16,33 +16,18 @@ omni_workers
 
 
 [odp-doris-be]
-10.20.3.219 
+ 
 [odp-doris-fe]
-10.20.3.219 
+ 
 [odp-api-java17]
-10.20.3.219 
+ 
 [odp-api-java21]
 [odp-backend-jobs]
-10.20.3.219 
+ 
 
 
 [odp-lakehouse]
-10.20.3.200
-10.20.3.203
-10.20.3.206
-10.20.3.208
-10.20.3.212
-10.20.3.201
-10.20.3.204
-10.20.3.207
-10.20.3.209
-10.20.3.213
-10.20.3.202
-10.20.3.205
-10.20.3.211
-10.20.3.214
-10.20.3.215
-10.20.3.216
+
 
 [odp:children]
 odp-doris-be
