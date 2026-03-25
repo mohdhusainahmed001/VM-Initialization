@@ -22,9 +22,14 @@ omni_workers
 [odp-api-java17]
  
 [odp-api-java21]
+
 [odp-backend-jobs]
  
 
+[odp-zookeeper]
+10.95.16.121
+10.95.16.120
+10.95.16.119
 
 [odp-lakehouse]
 
@@ -35,3 +40,6 @@ odp-doris-fe
 odp-api-java17
 odp-api-java21
 odp-backend-jobs
+odp-kafka
+odp-zookeeper
+odp-monitoring

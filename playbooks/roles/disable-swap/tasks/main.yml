@@ -12,7 +12,7 @@
 - name: set hard ulimit for open files
   lineinfile:
     path: /etc/security/limits.conf
-    line: '* hard nofile 200000'
+    line: '* hard nofile 1000000'
     create: no
     state: present
   become: yes
@@ -20,7 +20,15 @@
 - name: set soft ulimit for open files
   lineinfile:
     path: /etc/security/limits.conf
-    line: '* soft nofile 50000'
+    line: '* soft nofile 1000000'
     create: no
     state: present
   become: yes 
+- name: Configure vm.max_map_count
+  ansible.posix.sysctl:
+    name: vm.max_map_count
+    value: '2000000'
+    state: present
+    reload: true   
+    sysctl_file: /etc/sysctl.conf 
+  become: true

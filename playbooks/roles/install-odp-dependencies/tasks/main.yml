@@ -12,4 +12,5 @@
     - zlib1g-dev
     - libssl-dev
     - netcat-openbsd
+    - ca-certificates
   become: yes
