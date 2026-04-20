@@ -1,12 +1,16 @@
 ---
+- name: Bootstrap onexadmin User
+  hosts: warcs
+  become: yes
+  remote_user: ubuntu  
+  roles:
+    - create-onexadmin-user
+
 - name:
   hosts: warcs
   become: yes
-
+  remote_user: onexadmin
   roles:
-    #- docker
-    #- nexus-mirror
-   # - system-tuning
-    - node-exporter
-    #- nginx
-    #- disable-unattended-upgrades
+    - docker
+    - system-tuning
+    - disable-unattended-upgrades

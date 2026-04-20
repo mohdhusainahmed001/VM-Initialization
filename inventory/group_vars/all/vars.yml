@@ -1,5 +1,5 @@
 ---
-ansible_user: "onexadmin"
+ansible_user: "ubuntu"
 ansible_become: true
 ansible_become_password: "{{ vault_ansible_become_password }}"
 node_exporter_version: "1.8.1"

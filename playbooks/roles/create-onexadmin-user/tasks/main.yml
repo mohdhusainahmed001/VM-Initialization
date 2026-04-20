@@ -1,0 +1,32 @@
+- name: create onexadmin user
+  user:
+    name: onexadmin
+    groups: sudo
+    append: true
+    createhome: yes
+    password: "{{onexadmin_user_password | password_hash('sha512') }}"
+    state: present
+    shell: /bin/bash
+    update_password: on_create
+  become: yes
+
+- name: Set up authorized_keys for onexadmin
+  ansible.posix.authorized_key:
+    user: onexadmin
+    state: present
+    key: "{{ lookup('file', 'onexadmin_authorized_key.pub') }}"
+  become: yes
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- name: Allow the new user/group to have passwordless sudo
+  ansible.builtin.copy:
+    content: "onexadmin ALL=(ALL) NOPASSWD:ALL"
+    dest: "/etc/sudoers.d/90-onexadmin-nopasswd"
+    mode: '0440' 
+    validate: '/usr/sbin/visudo -cf %s' 
+  register: sudoers_status
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- name: enable linger for onexadmin user
+  ansible.builtin.command: "loginctl enable-linger onexadmin"
+  become: yes
