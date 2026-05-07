@@ -3,14 +3,6 @@ pipeline {
         label 'builtin'
     }
 
-    parameters {
-        choice(
-            name: 'project',
-            choices: ['engage', 'omni-api', 'warcs', 'odp', 'odp-lakehouse'],
-            description: 'Select the environment to Initialize'
-        )
-    }
-
     stages {
 
         stage('Install Lint Tools') {
@@ -33,40 +25,9 @@ pipeline {
 
         stage('Run ansible-lint') {
             steps {
-                sh 'ansible-lint playbooks/'
-            }
-        }
-
-        stage("Dry run ansible playbook") {
-            steps {
-                ansiblePlaybook(
-                    playbook: "playbooks/${params.project}.yml",
-                    inventory: "inventory/hosts",
-                    vaultCredentialsId: 'ansible-vault-pass',
-                    extras: '--check'
-                )
-            }
-        }
-
-        stage("Ask for approval") {
-            steps {
-                timeout(time: 10, unit: 'MINUTES') {
-                    input(
-                        id: 'proceed',
-                        message: 'Are you sure you want to deploy?',
-                        ok: 'Continue Deployment'
-                    )
-                }
-            }
-        }
-
-        stage("Run ansible playbook") {
-            steps {
-                ansiblePlaybook(
-                    playbook: "playbooks/${params.project}.yml",
-                    inventory: "inventory/hosts",
-                    vaultCredentialsId: 'ansible-vault-pass'
-                )
+                sh '''
+                    ansible-lint playbooks/
+                '''
             }
         }
     }
@@ -74,6 +35,14 @@ pipeline {
     post {
         always {
             cleanWs()
+        }
+
+        success {
+            echo "CI passed successfully"
+        }
+
+        failure {
+            echo "CI failed - fix issues before merge"
         }
     }
 }
